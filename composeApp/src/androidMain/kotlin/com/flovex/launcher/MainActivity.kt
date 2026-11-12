@@ -7,8 +7,7 @@ import androidx.activity.compose.setContent
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            App()
-        }
+        LauncherAndroidContext.appContext = applicationContext
+        setContent { App() }
     }
 }
