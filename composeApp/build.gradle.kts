@@ -7,7 +7,6 @@ plugins {
 
 kotlin {
     androidTarget()
-
     jvm("desktop")
 
     sourceSets {
@@ -21,8 +20,10 @@ kotlin {
         androidMain.dependencies {
             implementation("androidx.activity:activity-compose:1.10.1")
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
         }
     }
 }
@@ -36,7 +37,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.3.0"
     }
 }
 
@@ -50,7 +51,7 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb
             )
             packageName = "Flovex Launcher"
-            packageVersion = "0.1.0"
+            packageVersion = "0.3.0"
         }
     }
 }
