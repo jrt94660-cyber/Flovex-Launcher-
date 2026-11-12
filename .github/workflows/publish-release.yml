@@ -1,0 +1,48 @@
+name: Publish Flovex Android Release
+
+on:
+  workflow_run:
+    workflows: ["Build Flovex Android"]
+    types: [completed]
+    branches: [zalith-android-port]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Flovex overlay at build commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Read release version
+        id: version
+        run: |
+          version="$(sed -n 's/^launcher_version_name=//p' porting/zalith-gradle.properties | head -n1)"
+          test -n "$version"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download Android APK artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name Flovex-Launcher-Android-arm64 --dir release-assets
+          find release-assets -maxdepth 2 -type f -print
+          test -n "$(find release-assets -type f -name '*.apk' -print -quit)"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" release-assets/*.apk \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Flovex Launcher v${{ steps.version.outputs.version }}" \
+            --notes "Flovex Launcher Android ARM64 build. Includes local account registration/login and the bundled Zalith-based Minecraft Java launcher engine. This is an unofficial modified distribution; see the repository license and notices." \
+            --latest
