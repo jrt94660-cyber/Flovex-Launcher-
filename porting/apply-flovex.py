@@ -16,59 +16,9 @@ def patch(rel, old, new, label):
     p.write_text(s.replace(old, new, 1), encoding="utf-8")
 
 
-# For Minecraft 26.3, require the MobileGlues renderer selected for that
-# installed version. This is a launch-time guard, not an automatic renderer switch.
-patch(
-    "ui/screens/content/elements/LauncherElements.kt",
-    """    /** 当前渲染器不支持选中版本 */
-    data class UnsupportedRenderer(""",
-    """    /** Flovex compatibility guard: Minecraft 26.3 requires MobileGlues. */
-    data class FlovexMobileGluesRequired(
-        val version: Version
-    ) : LaunchGameOperation
-
-    /** 当前渲染器不支持选中版本 */
-    data class UnsupportedRenderer(""",
-    "Flovex MobileGlues launch operation"
-)
-
-patch(
-    "ui/screens/content/elements/LauncherElements.kt",
-    """        is LaunchGameOperation.UnsupportedRenderer -> {""",
-    """        is LaunchGameOperation.FlovexMobileGluesRequired -> {
-            SimpleAlertDialog(
-                title = "MobileGlues required",
-                text = "Minecraft 26.3 is configured to require the MobileGlues renderer in Flovex Launcher. Open this version's settings, select MobileGlues under Renderer, then tap Launch again.",
-                confirmText = "Got it",
-                onDismiss = {
-                    launchGameViewModel.updateOperation(LaunchGameOperation.None)
-                }
-            )
-        }
-        is LaunchGameOperation.UnsupportedRenderer -> {""",
-    "Flovex MobileGlues warning dialog"
-)
-
-patch(
-    "ui/screens/content/elements/LauncherElements.kt",
-    """                val mcVer = version.getVersionInfo()!!.minecraftVersion
-
-                // 设备完全支持 Vulkan 时跳过渲染器的版本支持检查""",
-    """                val mcVer = version.getVersionInfo()!!.minecraftVersion
-
-                // Flovex: block Minecraft 26.3 unless this version is set to MobileGlues.
-                if (mcVer.startsWith("26.3") &&
-                    currentRenderer.getRendererId() != "opengles3_mobileglues"
-                ) {
-                    launchGameViewModel.updateOperation(
-                        LaunchGameOperation.FlovexMobileGluesRequired(version)
-                    )
-                    return@LaunchedEffect
-                }
-
-                // 设备完全支持 Vulkan 时跳过渲染器的版本支持检查""",
-    "Flovex MobileGlues launch guard"
-)
+# Zalith Launcher 2.8.2 includes MobileGlues as an in-app renderer.
+# Do not force one renderer for a particular Minecraft version: let the user
+# select a compatible built-in backend in each version's renderer settings.
 
 # Keep Minecraft's native Java file access working. Android's SAF URI tree cannot
 # be passed to the JVM as a normal java.io.File, so request Android's all-files
