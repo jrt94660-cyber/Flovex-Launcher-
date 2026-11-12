@@ -54,12 +54,13 @@ jobs:
 
       - name: Install Android NDK
         run: |
-          sdkmanager --install "ndk;25.2.9519653"
+          sdkmanager --install "platforms;android-37.2" "ndk;25.2.9519653"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/25.2.9519653" >> "$GITHUB_ENV"
           sdkmanager --list | grep -E 'platforms;android-(36|37)' || true
 
       - name: Create CI debug signing key
         run: |
+          rm -f upstream/ZalithLauncher/zalith_launcher_debug.jks
           keytool -genkeypair -noprompt -keystore upstream/ZalithLauncher/zalith_launcher_debug.jks \
             -storepass flovex-debug-only -keypass flovex-debug-only \
             -alias movtery_zalith_debug -keyalg RSA -keysize 2048 -validity 10000 \
