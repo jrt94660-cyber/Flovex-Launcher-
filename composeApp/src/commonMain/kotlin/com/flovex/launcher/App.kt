@@ -52,7 +52,7 @@ fun App() {
                 Text("FLOVEX", color = Accent, fontSize = 25.sp, fontWeight = FontWeight.Black)
                 Text("LAUNCHER", color = Muted, fontSize = 11.sp, letterSpacing = 3.sp)
                 Spacer(Modifier.height(24.dp))
-                listOf("Home", "Server", "Versions", "Mods", "Performance", "Accounts", "Settings").forEach { page ->
+                listOf("Home", "Server", "Versions", "Mods", "Resource Packs", "Controls", "Performance", "Accounts", "Settings").forEach { page ->
                     Button(
                         onClick = { selectedPage = page }, modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
@@ -71,9 +71,11 @@ fun App() {
                     "Home" -> HomePage()
                     "Server" -> ServerPage()
                     "Versions" -> VersionsPage()
-                    "Mods" -> PlaceholderPage("Browse and manage compatible mods and modpacks.")
+                    "Mods" -> AddonManagerPage("mods")
                     "Performance" -> PlaceholderPage("Create reversible FPS optimization profiles.")
                     "Accounts" -> AccountsPage()
+                    "Resource Packs" -> AddonManagerPage("resourcepacks")
+                    "Controls" -> ControlsPage()
                     else -> PlaceholderPage("Launcher preferences and game settings.")
                 }
             }
@@ -263,4 +265,57 @@ private fun PlaceholderPage(description: String) {
             Text("This module is not implemented yet.", color = Color(0xFFFFC66D), fontSize = 12.sp)
         }
     }
+}
+
+
+@Composable
+private fun AddonManagerPage(kind: String) {
+    var profile by remember { mutableStateOf(loadLocalProfiles().firstOrNull() ?: "default") }
+    var items by remember { mutableStateOf(listGameAddons(profile, kind)) }
+    var sourcePath by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf<String?>(null) }
+    fun reload() { items = listGameAddons(profile, kind) }
+    Text(if (kind == "mods") "Manage .jar mods for the selected profile." else "Manage .zip resource packs for the selected profile.", color = Muted)
+    OutlinedTextField(value = profile, onValueChange = { profile = it; reload() }, label = { Text("Game profile") }, singleLine = true)
+    OutlinedTextField(value = sourcePath, onValueChange = { sourcePath = it }, label = { Text(if (kind == "mods") "Path to mod .jar" else "Path to resource pack .zip") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(onClick = { message = importGameAddon(profile, kind, sourcePath); if (message == null) sourcePath = ""; reload() }) { Text("Import file") }
+        Button(onClick = { reload(); message = "List refreshed." }) { Text("Refresh") }
+    }
+    if (message != null) Text(message!!, color = Muted, fontSize = 12.sp)
+    Text("FILES IN PROFILE", color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+    if (items.isEmpty()) Text("No files found. Import a compatible file to get started.", color = Muted)
+    items.forEach { item ->
+        Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(10.dp)) {
+            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(item.fileName, fontWeight = FontWeight.SemiBold)
+                    Text((if (item.enabled) "Enabled" else "Disabled") + " • " + (item.sizeBytes / 1024).coerceAtLeast(1) + " KB", color = Muted, fontSize = 11.sp)
+                }
+                Button(onClick = { message = if (setGameAddonEnabled(profile, kind, item.fileName, !item.enabled)) null else "Could not change file state."; reload() }) { Text(if (item.enabled) "Disable" else "Enable") }
+                Button(onClick = { val file = item.fileName; val ok = deleteGameAddon(profile, kind, file); message = if (ok) "Removed $file" else "Could not remove $file"; reload() }) { Text("Remove") }
+            }
+        }
+    }
+    Text("Files are stored in a separate Flovex profile directory. Android currently uses app-specific storage.", color = Muted, fontSize = 11.sp)
+}
+
+@Composable
+private fun ControlsPage() {
+    var profile by remember { mutableStateOf(loadLocalProfiles().firstOrNull() ?: "default") }
+    var bindings by remember { mutableStateOf(loadControlBindings(profile)) }
+    Text("Edit saved keyboard bindings for this launcher profile.", color = Muted)
+    OutlinedTextField(value = profile, onValueChange = { profile = it; bindings = loadControlBindings(it) }, label = { Text("Game profile") }, singleLine = true)
+    bindings.forEach { (action, key) ->
+        var value by remember(profile, action) { mutableStateOf(key) }
+        Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(9.dp)) {
+            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(action, modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium)
+                OutlinedTextField(value = value, onValueChange = { value = it.uppercase().take(20) }, label = { Text("Key") }, singleLine = true, modifier = Modifier.width(140.dp))
+                Button(onClick = { saveControlBinding(profile, action, value); bindings = loadControlBindings(profile) }) { Text("Save") }
+            }
+        }
+    }
+    Button(onClick = { defaultBindings.forEach { (action, key) -> saveControlBinding(profile, action, key) }; bindings = loadControlBindings(profile) }) { Text("Restore defaults") }
+    Text("Bindings are saved by Flovex Launcher. Applying them inside Minecraft requires the game integration layer, which is not connected yet.", color = Color(0xFFFFC66D), fontSize = 12.sp)
 }
