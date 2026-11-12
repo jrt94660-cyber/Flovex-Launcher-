@@ -20,6 +20,23 @@ def patch(rel, old, new, label):
 # Do not force one renderer for a particular Minecraft version: let the user
 # select a compatible built-in backend in each version's renderer settings.
 
+# Present the fork as Flovex in Android/Gradle project metadata. The Kotlin
+# namespace remains upstream-compatible for JNI and is not the installed app name.
+settings_file = root / "settings.gradle.kts"
+settings_text = settings_file.read_text(encoding="utf-8")
+settings_text = settings_text.replace('rootProject.name = "ZalithLauncher"', 'rootProject.name = "FlovexLauncher"')
+settings_file.write_text(settings_text, encoding="utf-8")
+
+# Assert the installed Android label is supplied by Flovex build properties.
+props = root / "ZalithLauncher/gradle.properties"
+props_text = props.read_text(encoding="utf-8")
+for key in ("launcher_name", "launcher_app_name"):
+    import re
+    props_text, count = re.subn(rf"(?m)^{key}=.*$", f"{key}=Flovex Launcher", props_text)
+    if count != 1:
+        raise SystemExit(f"Expected exactly one {key} in Gradle properties")
+props.write_text(props_text, encoding="utf-8")
+
 # Keep Minecraft's native Java file access working. Android's SAF URI tree cannot
 # be passed to the JVM as a normal java.io.File, so request Android's all-files
 # permission and use /storage/emulated/0/fl as the shared game-data root.
