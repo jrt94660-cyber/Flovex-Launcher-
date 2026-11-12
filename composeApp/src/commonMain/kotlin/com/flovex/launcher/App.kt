@@ -42,6 +42,11 @@ private const val SERVER_PORT = 12999
 
 @Composable
 fun App() {
+    PlatformStorageGate { LauncherContent() }
+}
+
+@Composable
+private fun LauncherContent() {
     var selectedPage by remember { mutableStateOf("Home") }
     MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Background, surface = Panel, onBackground = Color.White, onSurface = Color.White)) {
         Row(Modifier.fillMaxSize().background(Background)) {
