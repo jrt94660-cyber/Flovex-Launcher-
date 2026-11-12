@@ -1,54 +1,53 @@
 # Flovex Launcher
 
-A cross-platform Minecraft launcher application built with Kotlin and Compose Multiplatform.
+Flovex Launcher is a Kotlin Multiplatform desktop and Android application for Minecraft Java Edition.
 
-## Current project status
+## Implemented so far
 
-The application shell and FlovexSMP server monitor are implemented. Minecraft account authentication, game installation/launching, mod management, and FPS optimization remain under development; this is not yet a complete playable launcher.
+- Dark launcher shell with Home, Server, Versions, Mods, Performance, Accounts, and Settings navigation.
+- FlovexSMP Java Edition server monitor at `flovexsmp.mc-host.com:12999`.
+- Minecraft Java Server List Ping, with automatic 30-second refresh while the app is open and a manual refresh action.
+- Mojang official version manifest catalogue, with release/snapshot filtering.
+- Local offline profile creation, selection, removal, and persistence on desktop and Android.
 
-## FlovexSMP server
+## Not implemented yet
 
-The Home screen and Server page display the configured server:
+The app is still an early development build and is not yet a complete playable launcher.
+
+- Microsoft OAuth device-code sign-in, Xbox/XSTS authentication, Minecraft token exchange, and ownership/entitlement checks.
+- Downloading and installing Minecraft client versions, libraries, assets, and Java runtimes.
+- Launching the game and managing Java arguments/RAM.
+- Fabric, Forge, NeoForge, Quilt, modpacks, resource packs, and shaders.
+- FPS optimization profiles and compatibility checks.
+- Android Java Edition runtime/launch support.
+
+## Server monitor
 
 - Address: `flovexsmp.mc-host.com`
 - Port: `12999`
-- Status: Minecraft Java Edition Server List Ping (not merely a TCP port check).
-- Refresh: automatic every 30 seconds while the app is open, plus a manual Refresh button.
-- When reachable, the monitor shows server version and online/max player count when supplied by the server.
+- Uses Minecraft Java Edition Server List Ping, not only a TCP port test.
+- Refreshes automatically every 30 seconds while the app is open.
+- Shows version and player count when the server includes those values in its status response.
+- Status cannot be monitored while the launcher is closed.
 
-A failed ping is shown as OFFLINE; connection timeout or an invalid response is surfaced in the detail text. Server status is not guaranteed while the launcher is closed.
+## Platform targets
 
-## Targets
-
-- Windows, macOS, and Linux through the Compose Desktop target.
-- Android through the Android application target.
-- iOS and other platforms are not enabled yet.
-
-## Requirements
-
-- JDK 17 or newer
-- Gradle 8.14 or compatible wrapper
-- Android SDK for Android builds
+- Windows, macOS, and Linux: Compose Desktop/JVM.
+- Android: Compose Android application.
+- iOS is not configured.
 
 ## Build
 
-- Desktop: `gradle :composeApp:run`
-- Android debug APK: `gradle :composeApp:assembleDebug`
+Requirements: JDK 17+, Gradle 8.14, and Android SDK for Android packaging.
 
-## Architecture
+```bash
+gradle :composeApp:compileKotlinDesktop
+gradle :composeApp:run
+gradle :composeApp:assembleDebug
+```
 
-- `commonMain`: shared UI and server monitor presentation.
-- `desktopMain`: desktop entry point and Java Edition server ping.
-- `androidMain`: Android entry point and Java Edition server ping.
+GitHub Actions compiles the desktop target and attempts to package an Android debug APK on pushes to `main`.
 
-## Planned milestones
+## Authentication and account safety
 
-1. Launcher shell and FlovexSMP server status monitor.
-2. Local profile management.
-3. Official Microsoft/Minecraft authentication and entitlement checks.
-4. Minecraft version metadata, downloads, and game launching.
-5. Fabric/Forge/NeoForge installation and mod management.
-6. Safe, reversible performance profiles using compatible optimization mods.
-7. Platform-specific packaging and automated tests.
-
-The launcher must use official authentication and must not bypass Minecraft ownership checks. Local profiles are for offline-mode environments only.
+Local profiles are offline display-name profiles only. They do not authenticate with Microsoft, prove Minecraft ownership, or bypass online-mode authentication. The completed launcher will use official Microsoft/Minecraft authentication and verify game entitlement before online play.
