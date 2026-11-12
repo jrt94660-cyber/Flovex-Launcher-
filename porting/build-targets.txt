@@ -1,3 +1,3 @@
-Android arm64 debug build. Rust targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android. Pinned engine commit: 4607f153fcce149a8e0ad39dc93fc447589d9f17.
+Android arm64 debug build. Rust targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android. Pinned engine commit: dbf5a414504cdeb584d9e8fb437078b77b512ba4.
 
-CI retry trigger.
+Built-in MobileGlues renderer is supplied by Zalith Launcher 2.8.2; no separate renderer APK is required.
