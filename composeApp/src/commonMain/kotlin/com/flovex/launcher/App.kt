@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
@@ -72,7 +73,7 @@ fun App() {
                     "Versions" -> VersionsPage()
                     "Mods" -> PlaceholderPage("Browse and manage compatible mods and modpacks.")
                     "Performance" -> PlaceholderPage("Create reversible FPS optimization profiles.")
-                    "Accounts" -> PlaceholderPage("Add Microsoft accounts or local offline profiles.")
+                    "Accounts" -> AccountsPage()
                     else -> PlaceholderPage("Launcher preferences and game settings.")
                 }
             }
@@ -184,6 +185,64 @@ private fun VersionsPage() {
         }
     }
     Text("This catalogue is read-only for now. Downloading game files and launching versions are the next implementation step.", color = Color(0xFFFFC66D), fontSize = 12.sp)
+}
+
+
+@Composable
+private fun AccountsPage() {
+    var profiles by remember { mutableStateOf(loadLocalProfiles()) }
+    var profileName by remember { mutableStateOf("") }
+    var selectedProfile by remember { mutableStateOf(profiles.firstOrNull().orEmpty()) }
+    var validation by remember { mutableStateOf<String?>(null) }
+
+    Text("Local profiles are for offline-mode servers only. They are not Microsoft accounts and do not verify Minecraft ownership.", color = Muted)
+    Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(16.dp)) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text("ADD LOCAL PROFILE", color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+            OutlinedTextField(
+                value = profileName,
+                onValueChange = { profileName = it.take(16); validation = null },
+                label = { Text("Minecraft username") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(onClick = {
+                val candidate = profileName.trim()
+                if (!candidate.matches(Regex("^[A-Za-z0-9_]{3,16}$"))) {
+                    validation = "Use 3–16 letters, numbers, or underscores."
+                } else if (profiles.any { it.equals(candidate, ignoreCase = true) }) {
+                    validation = "That local profile already exists."
+                } else {
+                    profiles = profiles + candidate
+                    saveLocalProfiles(profiles)
+                    selectedProfile = candidate
+                    profileName = ""
+                    validation = null
+                }
+            }) { Text("Add profile") }
+            if (validation != null) Text(validation!!, color = Color(0xFFFF8A80), fontSize = 12.sp)
+        }
+    }
+    Text("SAVED LOCAL PROFILES", fontSize = 12.sp, color = Muted, fontWeight = FontWeight.Bold)
+    if (profiles.isEmpty()) Text("No local profiles saved.", color = Muted)
+    profiles.forEach { profile ->
+        Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(10.dp)) {
+            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(profile, fontWeight = FontWeight.SemiBold)
+                    Text(if (selectedProfile == profile) "Selected local profile" else "Offline profile", color = Muted, fontSize = 11.sp)
+                }
+                Button(onClick = { selectedProfile = profile }) { Text("Select") }
+                Spacer(Modifier.width(6.dp))
+                Button(onClick = {
+                    profiles = profiles.filterNot { it == profile }
+                    saveLocalProfiles(profiles)
+                    if (selectedProfile == profile) selectedProfile = profiles.firstOrNull().orEmpty()
+                }) { Text("Remove") }
+            }
+        }
+    }
+    Text("Microsoft sign-in and online account verification are not enabled yet. These local profiles cannot authenticate to FlovexSMP if it requires authenticated Minecraft accounts.", color = Color(0xFFFFC66D), fontSize = 12.sp)
 }
 
 @Composable
