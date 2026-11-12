@@ -88,6 +88,20 @@ patch(
     "FlovexSMP server preset"
 )
 
+# Use a Flovex application ID while retaining upstream Kotlin namespace so
+# the engine source and its JNI bindings remain compatible.
+gradle_build = root / "ZalithLauncher/build.gradle.kts"
+build_text = gradle_build.read_text(encoding="utf-8")
+old_app_id = """        applicationId = zalithPackageName
+        applicationIdSuffix = ".v2"
+"""
+new_app_id = """        applicationId = "com.flovex.launcher"
+"""
+if new_app_id not in build_text:
+    if old_app_id not in build_text:
+        raise SystemExit("Could not apply Flovex application ID: Gradle anchor changed")
+    gradle_build.write_text(build_text.replace(old_app_id, new_app_id, 1), encoding="utf-8")
+
 # Keep the launcher account choices offline-only. Remove Microsoft sign-in
 # from the built-in account picker while preserving its local account action.
 elements = root / "ZalithLauncher/src/main/java/com/movtery/zalithlauncher/ui/screens/content/elements/AccountElements.kt"
