@@ -42,20 +42,10 @@ private const val SERVER_PORT = 12999
 @Composable
 fun App() {
     var selectedPage by remember { mutableStateOf("Home") }
-
-    MaterialTheme(
-        colorScheme = darkColorScheme(
-            primary = Accent,
-            background = Background,
-            surface = Panel,
-            onBackground = Color.White,
-            onSurface = Color.White
-        )
-    ) {
-        Row(modifier = Modifier.fillMaxSize().background(Background)) {
+    MaterialTheme(colorScheme = darkColorScheme(primary = Accent, background = Background, surface = Panel, onBackground = Color.White, onSurface = Color.White)) {
+        Row(Modifier.fillMaxSize().background(Background)) {
             Column(
-                modifier = Modifier.width(190.dp).fillMaxSize()
-                    .background(Color(0xFF0E141E)).padding(18.dp),
+                Modifier.width(190.dp).fillMaxSize().background(Color(0xFF0E141E)).padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text("FLOVEX", color = Accent, fontSize = 25.sp, fontWeight = FontWeight.Black)
@@ -63,8 +53,7 @@ fun App() {
                 Spacer(Modifier.height(24.dp))
                 listOf("Home", "Server", "Versions", "Mods", "Performance", "Accounts", "Settings").forEach { page ->
                     Button(
-                        onClick = { selectedPage = page },
-                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { selectedPage = page }, modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (selectedPage == page) Color(0xFF20364B) else Color.Transparent,
@@ -73,18 +62,14 @@ fun App() {
                     ) { Text(page, modifier = Modifier.fillMaxWidth()) }
                 }
                 Spacer(Modifier.weight(1f))
-                Text("Preview build 0.2.0", color = Muted, fontSize = 10.sp)
+                Text("Preview build 0.3.0", color = Muted, fontSize = 10.sp)
             }
-
-            Column(
-                modifier = Modifier.fillMaxSize().padding(30.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
+            Column(Modifier.fillMaxSize().padding(30.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
                 Text(selectedPage, fontSize = 30.sp, fontWeight = FontWeight.Bold)
                 when (selectedPage) {
                     "Home" -> HomePage()
                     "Server" -> ServerPage()
-                    "Versions" -> PlaceholderPage("Install and manage Minecraft versions.")
+                    "Versions" -> VersionsPage()
                     "Mods" -> PlaceholderPage("Browse and manage compatible mods and modpacks.")
                     "Performance" -> PlaceholderPage("Create reversible FPS optimization profiles.")
                     "Accounts" -> PlaceholderPage("Add Microsoft accounts or local offline profiles.")
@@ -97,23 +82,16 @@ fun App() {
 
 @Composable
 private fun HomePage() {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Panel,
-        shape = RoundedCornerShape(20.dp)
-    ) {
+    Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(20.dp)) {
         Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("YOUR MINECRAFT, YOUR WAY", color = Accent, fontSize = 11.sp, letterSpacing = 2.sp)
             Text("Ready to play?", fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text(
-                "Flovex Launcher brings accounts, game versions, mods, and performance profiles into one app.",
-                color = Muted
-            )
+            Text("Flovex Launcher brings accounts, game versions, mods, and performance profiles into one app.", color = Muted)
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(onClick = {}, enabled = false) { Text("PLAY — COMING SOON") }
                 Spacer(Modifier.width(12.dp))
-                Text("Game installation is not available yet", color = Muted, fontSize = 12.sp)
+                Text("Game installation and launch are not available yet", color = Muted, fontSize = 12.sp)
             }
         }
     }
@@ -137,7 +115,6 @@ private fun ServerStatusCard() {
     var details by remember { mutableStateOf("Waiting for first status check…") }
     var checking by remember { mutableStateOf(false) }
     var lastChecked by remember { mutableStateOf("Not checked yet") }
-
     fun refresh() {
         if (checking) return
         checking = true
@@ -149,42 +126,23 @@ private fun ServerStatusCard() {
             checking = false
         }
     }
-
     LaunchedEffect(Unit) {
-        while (true) {
-            refresh()
-            delay(30_000)
-        }
+        while (true) { refresh(); delay(30_000) }
     }
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = Panel,
-        shape = RoundedCornerShape(18.dp)
-    ) {
+    Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(18.dp)) {
         Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Text("FLOVEXSMP", color = Accent, fontSize = 11.sp, letterSpacing = 2.sp, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                val statusColor = when (isOnline) {
-                    true -> Color(0xFF4ADE80)
-                    false -> Color(0xFFFF6B6B)
-                    null -> Color(0xFFFFC66D)
-                }
+                val statusColor = when (isOnline) { true -> Color(0xFF4ADE80); false -> Color(0xFFFF6B6B); null -> Color(0xFFFFC66D) }
                 Box(Modifier.width(9.dp).height(9.dp).background(statusColor, RoundedCornerShape(50)))
-                Text(
-                    when (isOnline) { true -> "ONLINE"; false -> "OFFLINE"; null -> if (checking) "CHECKING" else "UNKNOWN" },
-                    color = statusColor,
-                    fontWeight = FontWeight.Bold
-                )
+                Text(when (isOnline) { true -> "ONLINE"; false -> "OFFLINE"; null -> if (checking) "CHECKING" else "UNKNOWN" }, color = statusColor, fontWeight = FontWeight.Bold)
             }
             Text("$SERVER_HOST:$SERVER_PORT", fontWeight = FontWeight.SemiBold)
             Text(details, color = Muted, fontSize = 13.sp)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(lastChecked, color = Muted, fontSize = 11.sp)
                 Spacer(Modifier.weight(1f))
-                Button(onClick = { refresh() }, enabled = !checking) {
-                    Text(if (checking) "Checking…" else "Refresh")
-                }
+                Button(onClick = { refresh() }, enabled = !checking) { Text(if (checking) "Checking…" else "Refresh") }
             }
             Text("Automatically checks every 30 seconds while the launcher is open.", color = Muted, fontSize = 11.sp)
         }
@@ -192,12 +150,45 @@ private fun ServerStatusCard() {
 }
 
 @Composable
+private fun VersionsPage() {
+    var versions by remember { mutableStateOf<List<MinecraftVersion>>(emptyList()) }
+    var loading by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var selectedFilter by remember { mutableStateOf("release") }
+    fun refresh() {
+        if (loading) return
+        loading = true
+        error = null
+        fetchMinecraftVersions { result, message ->
+            versions = result.orEmpty()
+            error = message
+            loading = false
+        }
+    }
+    LaunchedEffect(Unit) { refresh() }
+    Text("Official version catalogue from Mojang's version manifest.", color = Muted)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(onClick = { selectedFilter = "release" }) { Text("Releases") }
+        Button(onClick = { selectedFilter = "snapshot" }) { Text("Snapshots") }
+        Button(onClick = { refresh() }, enabled = !loading) { Text(if (loading) "Loading…" else "Refresh") }
+    }
+    if (error != null) Text("Could not load versions: $error", color = Color(0xFFFF8A80))
+    if (versions.isEmpty() && loading) Text("Connecting to Mojang version manifest…", color = Muted)
+    versions.filter { it.type == selectedFilter }.take(30).forEach { version ->
+        Surface(Modifier.fillMaxWidth(), color = Panel, shape = RoundedCornerShape(10.dp)) {
+            Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(version.id, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.weight(1f))
+                Text(if (version.type == "release") "RELEASE" else "SNAPSHOT", color = Muted, fontSize = 10.sp)
+            }
+        }
+    }
+    Text("This catalogue is read-only for now. Downloading game files and launching versions are the next implementation step.", color = Color(0xFFFFC66D), fontSize = 12.sp)
+}
+
+@Composable
 private fun QuickCard(title: String, subtitle: String) {
-    Surface(
-        modifier = Modifier.width(220.dp),
-        color = Panel,
-        shape = RoundedCornerShape(16.dp)
-    ) {
+    Surface(Modifier.width(220.dp), color = Panel, shape = RoundedCornerShape(16.dp)) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(title, fontWeight = FontWeight.Bold)
             Text(subtitle, color = Muted, fontSize = 12.sp)
@@ -207,9 +198,7 @@ private fun QuickCard(title: String, subtitle: String) {
 
 @Composable
 private fun PlaceholderPage(description: String) {
-    Box(
-        modifier = Modifier.fillMaxWidth().background(Panel, RoundedCornerShape(16.dp)).padding(24.dp)
-    ) {
+    Box(Modifier.fillMaxWidth().background(Panel, RoundedCornerShape(16.dp)).padding(24.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(description, color = Muted)
             Text("This module is not implemented yet.", color = Color(0xFFFFC66D), fontSize = 12.sp)
