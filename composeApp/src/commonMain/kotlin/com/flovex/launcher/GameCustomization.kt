@@ -9,3 +9,5 @@ expect fun deleteGameAddon(profile: String, kind: String, fileName: String): Boo
 expect fun loadControlBindings(profile: String): Map<String, String>
 expect fun saveControlBinding(profile: String, action: String, key: String)
 
+
+val defaultBindings = mapOf("Forward" to "W", "Back" to "S", "Left" to "A", "Right" to "D", "Jump" to "SPACE", "Sneak" to "LEFT_SHIFT", "Sprint" to "LEFT_CONTROL", "Inventory" to "E", "Drop" to "Q", "Chat" to "T")
