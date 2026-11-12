@@ -15,11 +15,11 @@ jobs:
       - name: Checkout Flovex overlay
         uses: actions/checkout@v4
 
-      - name: Checkout pinned Zalith Launcher 2 engine
+      - name: Checkout Zalith Launcher 2.8.2 engine
         run: |
           git clone --filter=blob:none https://github.com/ZalithLauncher/ZalithLauncher2.git upstream
           cd upstream
-          git checkout 4607f153fcce149a8e0ad39dc93fc447589d9f17
+          git checkout dbf5a414504cdeb584d9e8fb437078b77b512ba4
 
       - name: Apply Flovex features and branding
         run: |
