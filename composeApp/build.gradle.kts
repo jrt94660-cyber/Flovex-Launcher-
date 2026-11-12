@@ -51,7 +51,7 @@ compose.desktop {
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Deb
             )
             packageName = "Flovex Launcher"
-            packageVersion = "0.3.0"
+            packageVersion = "1.0.0"
         }
     }
 }
