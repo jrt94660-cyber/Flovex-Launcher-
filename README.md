@@ -21,6 +21,23 @@ The app is still an early development build and is not yet a complete playable l
 - FPS optimization profiles and compatibility checks.
 - Android Java Edition runtime/launch support.
 
+## Planned account system
+
+- Flovex accounts use globally unique usernames reserved in a central account database.
+- Registration requires a password; existing usernames require the matching password to sign in.
+- Passwords must be stored as salted password hashes (never plaintext), with server-side rate limiting and secure session handling.
+- A central authentication service is required for accounts to work across devices. Local-only profiles cannot provide global username reservations.
+- Offline Minecraft identity is still not Mojang/Microsoft verified. The Flovex authentication service and compatible game server must enforce the account-to-player identity mapping; launcher-only checks are not sufficient to prevent impersonation.
+
+## Planned game customization
+
+- Mod manager: import local .jar mods, enable/disable, remove, and organize by game profile, Minecraft version, and mod loader.
+- Resource-pack manager: import .zip packs, enable/disable, remove, and reorder pack priority.
+- Controls editor: remap keyboard and mouse bindings, adjust supported sensitivity settings, and restore defaults.
+- Compatibility checks for Minecraft version, mod loader, and conflicting mods.
+- Keep mods, resource packs, and control settings isolated per game profile.
+- Android touch controls and desktop keyboard/mouse controls need platform-specific handling.
+
 ## Server monitor
 
 - Address: `flovexsmp.mc-host.com`
