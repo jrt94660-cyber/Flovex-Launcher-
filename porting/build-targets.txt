@@ -1,0 +1,1 @@
+Android arm64 debug build. Rust targets: aarch64-linux-android, armv7-linux-androideabi, i686-linux-android, x86_64-linux-android. Pinned engine commit: 4607f153fcce149a8e0ad39dc93fc447589d9f17.
