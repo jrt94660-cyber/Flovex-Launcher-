@@ -128,7 +128,7 @@ private fun HomePage() {
 @Composable
 private fun QuickCard(title: String, subtitle: String) {
     Surface(
-        modifier = Modifier.weight(1f),
+        modifier = Modifier.width(220.dp),
         color = Panel,
         shape = RoundedCornerShape(16.dp)
     ) {
