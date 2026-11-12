@@ -35,6 +35,9 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+          cmdline-tools-version: 'latest'
 
       - name: Install Android SDK and NDK
         run: |
